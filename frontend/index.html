@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>eFile Sathi - सरकारी दस्तावेज़ प्रबंधन</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <!-- Chart.js for Analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Government Header Bar -->
+        <div class="govt-header">
+            <div class="govt-header-content">
+                <span>भारत सरकार | Government of India</span>
+                <span>Ministry of Electronics & IT | इलेक्ट्रॉनिक्स और सूचना प्रौद्योगिकी मंत्रालय</span>
+            </div>
+        </div>
+
+        <!-- Main Header -->
+        <header class="header">
+            <div class="header-left">
+                <div class="emblem">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/5/55/Emblem_of_India.svg"
+                        alt="Ashoka Emblem" onerror="this.style.display='none'">
+                </div>
+                <div class="brand">
+                    <h1>eFile Sathi</h1>
+                    <p class="subtitle">Intelligent Document Processing System</p>
+                    <p class="subtitle-hindi">बुद्धिमान दस्तावेज़ प्रसंस्करण प्रणाली</p>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="header-stats">
+                    <div class="stat-mini">
+                        <span class="stat-num" id="docCount">0</span>
+                        <span class="stat-label">Documents</span>
+                    </div>
+                    <div class="stat-mini">
+                        <span class="stat-num" id="blockCount">1</span>
+                        <span class="stat-label">Verified</span>
+                    </div>
+                </div>
+                <button class="theme-toggle" id="themeToggle" title="Toggle Dark Mode">
+                    <span class="theme-icon">🌙</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Navigation -->
+        <nav class="main-nav">
+            <a href="#" class="nav-item active" data-section="home">होम / Home</a>
+            <a href="#" class="nav-item" data-section="upload">अपलोड / Upload</a>
+            <a href="#" class="nav-item" data-section="search">खोजें / Search</a>
+            <a href="#" class="nav-item" data-section="rti">आरटीआई / RTI</a>
+            <a href="#" class="nav-item" data-section="comparison">📊 Compare</a>
+            <a href="#" class="nav-item" data-section="workflow">📋 Workflow</a>
+            <a href="#" class="nav-item" data-section="grievance">📝 Grievance</a>
+            <a href="#" class="nav-item" data-section="compliance">✅ Compliance</a>
+            <a href="#" class="nav-item" data-section="analytics">📈 Analytics</a>
+            <a href="/docs" class="nav-item" target="_blank">API Docs</a>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Welcome Banner -->
+            <section class="welcome-banner" id="home-section">
+                <div class="banner-content">
+                    <h2>Welcome to eFile Sathi</h2>
+                    <p>An initiative under Digital India to automate government document processing using Artificial
+                        Intelligence.</p>
+                    <p class="hindi-text">डिजिटल इंडिया के तहत सरकारी दस्तावेज़ प्रसंस्करण को स्वचालित करने की पहल।</p>
+                </div>
+                <div class="banner-features">
+                    <div class="feature-item">
+                        <span class="feature-icon">📄</span>
+                        <span class="feature-text">OCR in 15+ Languages</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">📝</span>
+                        <span class="feature-text">Auto Summarization</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">🔍</span>
+                        <span class="feature-text">Smart Search</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">📬</span>
+                        <span class="feature-text">RTI Response</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Upload Section -->
+            <section class="content-section" id="upload-section">
+                <div class="section-header">
+                    <h3>Upload Document / दस्तावेज़ अपलोड करें</h3>
+                    <p>Upload government orders, circulars, or any official document for processing</p>
+                </div>
+
+                <div class="upload-area">
+                    <div class="upload-box" id="uploadZone">
+                        <input type="file" id="fileInput" accept=".pdf,.png,.jpg,.jpeg,.tiff" multiple hidden>
+                        <div class="upload-icon">📁</div>
+                        <p class="upload-text">Click to select or drag files here</p>
+                        <p class="upload-hint">Supports multiple files: PDF, PNG, JPG (Max 50MB each)</p>
+                    </div>
+                    <div class="upload-status" id="uploadStatus"></div>
+
+                    <!-- Multi-file Upload Queue -->
+                    <div class="upload-queue" id="uploadQueue" style="display: none;">
+                        <div class="upload-queue-header">
+                            <span class="upload-queue-title">📋 Upload Queue</span>
+                            <span class="upload-queue-count" id="queueCount">0</span>
+                        </div>
+                        <div class="upload-queue-list" id="queueList"></div>
+                    </div>
+                </div>
+
+                <!-- Results Panel (Hidden initially) -->
+                <div class="results-panel" id="resultsPanel" style="display: none;">
+                    <div class="results-tabs">
+                        <button class="result-tab active" data-tab="text">Extracted Text</button>
+                        <button class="result-tab" data-tab="summary">Summary</button>
+                        <button class="result-tab" data-tab="actions">Action Items</button>
+                    </div>
+
+                    <!-- Text Tab -->
+                    <div class="result-content active" id="text-content">
+                        <div class="text-stats" id="textStats"></div>
+                        <div class="btn-group" id="downloadButtons" style="display: none;">
+                            <button class="btn-secondary" id="downloadText" onclick="downloadText()">
+                                📄 Download Text
+                            </button>
+                            <button class="btn-secondary" id="downloadPdf" onclick="downloadPDF()">
+                                📑 Download PDF
+                            </button>
+                            <button class="btn-success" id="copyText" onclick="copyText()">
+                                📋 Copy to Clipboard
+                            </button>
+                        </div>
+                        <div class="text-box" id="extractedText">
+                            <p class="placeholder">Upload a document to see extracted text...</p>
+                        </div>
+                    </div>
+
+                    <!-- Summary Tab -->
+                    <div class="result-content" id="summary-content">
+                        <div class="summary-options">
+                            <label class="radio-option">
+                                <input type="radio" name="summaryLevel" value="secretary" checked>
+                                <span>Secretary Level (1 line)</span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="summaryLevel" value="director">
+                                <span>Director Level (1 para)</span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="summaryLevel" value="officer">
+                                <span>Officer Level (Detailed)</span>
+                            </label>
+                        </div>
+                        <div class="summary-box" id="summaryText">
+                            <p class="placeholder">Summary will appear here after document upload...</p>
+                        </div>
+                    </div>
+
+                    <!-- Actions Tab -->
+                    <div class="result-content" id="actions-content">
+                        <div class="actions-box" id="actionItems">
+                            <p class="placeholder">Action items will be extracted automatically...</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Search Section -->
+            <section class="content-section" id="search-section" style="display: none;">
+                <div class="section-header">
+                    <h3>Search Documents / दस्तावेज़ खोजें</h3>
+                    <p>Search by meaning, not just keywords. Try: "recruitment freeze", "budget allocation"</p>
+                </div>
+
+                <div class="search-container">
+                    <div class="search-input-group">
+                        <input type="text" id="searchInput" placeholder="Enter search query...">
+                        <button id="searchBtn" class="btn-primary">Search</button>
+                    </div>
+                </div>
+
+                <div class="search-results" id="searchResults">
+                    <p class="placeholder">Search results will appear here...</p>
+                </div>
+            </section>
+
+            <!-- RTI Section -->
+            <section class="content-section" id="rti-section" style="display: none;">
+                <div class="section-header">
+                    <h3>RTI Response Generator / आरटीआई प्रतिक्रिया</h3>
+                    <p>Auto-generate formal RTI response letters with relevant documents</p>
+                </div>
+
+                <div class="rti-form">
+                    <div class="form-group">
+                        <label>RTI Query / आरटीआई प्रश्न</label>
+                        <textarea id="rtiQuery" rows="4" placeholder="Enter the RTI request details..."></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Applicant Name</label>
+                            <input type="text" id="rtiApplicant" placeholder="Shri/Smt. Name">
+                        </div>
+                        <div class="form-group">
+                            <label>Response Type</label>
+                            <select id="rtiType">
+                                <option value="standard">Standard Disclosure</option>
+                                <option value="partial_disclosure">Partial Disclosure</option>
+                                <option value="transfer">Transfer to Other Dept.</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button id="generateRti" class="btn-primary">Generate RTI Response</button>
+                </div>
+
+                <div class="rti-actions">
+                    <button class="btn-secondary" onclick="printRTI()">🖨️ Print Letter</button>
+                    <button class="btn-secondary" onclick="downloadRTIPDF()">📥 Download PDF</button>
+                </div>
+
+                <div class="rti-output" id="rtiOutput">
+                    <p class="placeholder">RTI response will be generated here...</p>
+                </div>
+            </section>
+
+            <!-- Analytics Dashboard Section -->
+            <section class="content-section" id="analytics-section" style="display: none;">
+                <div class="section-header">
+                    <h3>Analytics Dashboard / विश्लेषण डैशबोर्ड</h3>
+                    <p>Monitor document processing statistics and system performance</p>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="analytics-grid">
+                    <div class="analytics-card">
+                        <div class="analytics-icon">📄</div>
+                        <div class="analytics-value" id="analyticsDocCount">0</div>
+                        <div class="analytics-label">Documents Processed</div>
+                    </div>
+                    <div class="analytics-card">
+                        <div class="analytics-icon">⛓️</div>
+                        <div class="analytics-value" id="analyticsBlockCount">0</div>
+                        <div class="analytics-label">Blockchain Verified</div>
+                    </div>
+                    <div class="analytics-card">
+                        <div class="analytics-icon">🔍</div>
+                        <div class="analytics-value" id="analyticsSearchCount">0</div>
+                        <div class="analytics-label">Searches Performed</div>
+                    </div>
+                    <div class="analytics-card">
+                        <div class="analytics-icon">📬</div>
+                        <div class="analytics-value" id="analyticsRTICount">0</div>
+                        <div class="analytics-label">RTI Responses</div>
+                    </div>
+                </div>
+
+                <!-- Charts -->
+                <div class="chart-container">
+                    <div class="chart-title">Document Categories</div>
+                    <canvas id="categoryChart" height="200"></canvas>
+                </div>
+
+                <div class="chart-container">
+                    <div class="chart-title">Processing Timeline (Last 7 Days)</div>
+                    <canvas id="timelineChart" height="150"></canvas>
+                </div>
+            </section>
+
+            <!-- Document Comparison Section -->
+            <section class="content-section" id="comparison-section" style="display: none;">
+                <div class="section-header">
+                    <h3>Document Comparison / दस्तावेज़ तुलना</h3>
+                    <p>Compare two documents to identify changes, additions, and modifications</p>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Document 1 (Original)</label>
+                        <div class="upload-box" id="compareDoc1Zone" style="padding: 20px;">
+                            <input type="file" id="compareDoc1" accept=".pdf,.png,.jpg,.jpeg,.tiff" hidden>
+                            <div class="upload-icon">📄</div>
+                            <p class="upload-text">Upload first document</p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Document 2 (Updated)</label>
+                        <div class="upload-box" id="compareDoc2Zone" style="padding: 20px;">
+                            <input type="file" id="compareDoc2" accept=".pdf,.png,.jpg,.jpeg,.tiff" hidden>
+                            <div class="upload-icon">📄</div>
+                            <p class="upload-text">Upload second document</p>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn-primary" id="compareDocsBtn" style="margin-top: 16px;">🔍 Compare Documents</button>
+
+                <div class="comparison-panel" id="comparisonResults" style="display: none;">
+                    <div class="comparison-doc">
+                        <h5>📄 Original Document</h5>
+                        <div id="comparisonDoc1Content"></div>
+                    </div>
+                    <div class="comparison-doc">
+                        <h5>📄 Updated Document</h5>
+                        <div id="comparisonDoc2Content"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Workflow Tracker Section -->
+            <section class="content-section" id="workflow-section" style="display: none;">
+                <div class="section-header">
+                    <h3>Document Workflow Tracker / दस्तावेज़ प्रवाह ट्रैकर</h3>
+                    <p>Track document status through the approval chain</p>
+                </div>
+
+                <div class="search-input-group" style="margin-bottom: 20px;">
+                    <input type="text" id="workflowDocId" placeholder="Enter Document ID (e.g., DOC-2024-0001)">
+                    <button id="trackWorkflowBtn" class="btn-primary">🔍 Track</button>
+                </div>
+
+                <div class="workflow-tracker" id="workflowDisplay">
+                    <h4 style="margin-bottom: 16px; color: var(--primary-blue);">📋 Document Status Timeline</h4>
+                    <div class="workflow-timeline">
+                        <div class="workflow-step completed">
+                            <div class="workflow-icon">📤</div>
+                            <div class="workflow-label">Submitted</div>
+                        </div>
+                        <div class="workflow-step completed">
+                            <div class="workflow-icon">👁️</div>
+                            <div class="workflow-label">Under Review</div>
+                        </div>
+                        <div class="workflow-step current">
+                            <div class="workflow-icon">✍️</div>
+                            <div class="workflow-label">Pending Approval</div>
+                        </div>
+                        <div class="workflow-step pending">
+                            <div class="workflow-icon">✅</div>
+                            <div class="workflow-label">Approved</div>
+                        </div>
+                        <div class="workflow-step pending">
+                            <div class="workflow-icon">📁</div>
+                            <div class="workflow-label">Archived</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Grievance Tracking Section -->
+            <section class="content-section" id="grievance-section" style="display: none;">
+                <div class="section-header">
+                    <h3>Grievance Tracker / शिकायत ट्रैकर</h3>
+                    <p>Track and manage citizen grievances from documents</p>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Grievance Subject</label>
+                        <input type="text" id="grievanceSubject" placeholder="Brief description of grievance">
+                    </div>
+                    <div class="form-group">
+                        <label>Priority</label>
+                        <select id="grievancePriority">
+                            <option value="normal">Normal</option>
+                            <option value="high">High Priority</option>
+                            <option value="urgent">Urgent</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Grievance Details</label>
+                    <textarea id="grievanceDetails" rows="3" placeholder="Detailed description..."></textarea>
+                </div>
+                <button class="btn-primary" id="submitGrievanceBtn">📝 Register Grievance</button>
+
+                <h4 style="margin-top: 24px; margin-bottom: 12px; color: var(--primary-blue);">Recent Grievances</h4>
+                <div id="grievanceList">
+                    <div class="grievance-card urgent">
+                        <div class="grievance-header">
+                            <span class="grievance-id">GRV-2024-0042</span>
+                            <span class="grievance-status pending">Pending</span>
+                        </div>
+                        <div class="grievance-subject">Delay in pension disbursement</div>
+                        <div class="grievance-date">📅 Submitted: 28 Dec 2024 | ⏰ Due: 05 Jan 2025</div>
+                    </div>
+                    <div class="grievance-card">
+                        <div class="grievance-header">
+                            <span class="grievance-id">GRV-2024-0039</span>
+                            <span class="grievance-status processing">In Progress</span>
+                        </div>
+                        <div class="grievance-subject">Request for ration card correction</div>
+                        <div class="grievance-date">📅 Submitted: 25 Dec 2024 | ⏰ Due: 08 Jan 2025</div>
+                    </div>
+                    <div class="grievance-card resolved">
+                        <div class="grievance-header">
+                            <span class="grievance-id">GRV-2024-0035</span>
+                            <span class="grievance-status resolved">Resolved</span>
+                        </div>
+                        <div class="grievance-subject">Property tax assessment query</div>
+                        <div class="grievance-date">📅 Submitted: 20 Dec 2024 | ✅ Resolved: 26 Dec 2024</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Compliance Check Section -->
+            <section class="content-section" id="compliance-section" style="display: none;">
+                <div class="section-header">
+                    <h3>Document Compliance Checker / अनुपालन जाँच</h3>
+                    <p>Verify document compliance with government standards</p>
+                </div>
+
+                <div class="upload-box" id="complianceUploadZone">
+                    <input type="file" id="complianceFileInput" accept=".pdf,.png,.jpg,.jpeg,.tiff" hidden>
+                    <div class="upload-icon">🔍</div>
+                    <p class="upload-text">Upload document for compliance check</p>
+                    <p class="upload-hint">We'll check for mandatory fields, format standards, and completeness</p>
+                </div>
+
+                <div id="complianceResults" style="display: none;">
+                    <div class="compliance-score">
+                        <div class="compliance-meter" id="complianceMeter">
+                            <svg width="80" height="80">
+                                <circle class="bg" cx="40" cy="40" r="34"></circle>
+                                <circle class="progress" cx="40" cy="40" r="34" stroke-dasharray="0 214"
+                                    id="complianceProgress"></circle>
+                            </svg>
+                            <div class="compliance-value" id="complianceValue">0%</div>
+                        </div>
+                        <div class="compliance-details">
+                            <h5>Compliance Report</h5>
+                            <div id="complianceChecklist">
+                                <!-- Checklist items will be inserted here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="esign-badge pending" id="esignStatus" style="margin-top: 16px;">
+                        🔐 Digital Signature: Not Verified
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-content">
+                <div class="footer-left">
+                    <p><strong>eFile Sathi</strong> - A Digital India Initiative</p>
+                    <p>Developed for Government of India | © 2024-25</p>
+                </div>
+                <div class="footer-right">
+                    <p>Potential Impact: <strong>₹360 Crore</strong> annual savings</p>
+                    <p>Processing 500+ departments nationwide</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <span>NIC | राष्ट्रीय सूचना विज्ञान केन्द्र</span>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Voice Control Button -->
+    <div class="voice-control">
+        <button class="voice-btn" id="voiceBtn" title="Voice Command (Click to speak)">
+            🎤
+        </button>
+    </div>
+
+    <!-- Chatbot Widget -->
+    <div class="chatbot-widget">
+        <div class="chatbot-panel" id="chatbotPanel">
+            <div class="chatbot-header">
+                <div>
+                    <h4>🤖 Document Assistant</h4>
+                    <span>Ask questions about your documents</span>
+                </div>
+                <button class="chatbot-close" id="chatbotClose">×</button>
+            </div>
+            <div class="chatbot-messages" id="chatMessages">
+                <div class="chat-message bot">
+                    नमस्ते! I'm your Document Assistant. Ask me anything about your uploaded documents or government
+                    processes.
+                </div>
+            </div>
+            <div class="chatbot-input">
+                <input type="text" id="chatInput" placeholder="Type your question in Hindi or English...">
+                <button id="chatSendBtn">➤</button>
+            </div>
+        </div>
+        <button class="chatbot-toggle" id="chatbotToggle" title="Chat with Document AI">
+            💬
+        </button>
+    </div>
+
+    <script src="/static/app.js"></script>
+
+    <!-- Toast Notifications Container -->
+    <div class="toast-container" id="toastContainer"></div>
+</body>
+
+</html>
