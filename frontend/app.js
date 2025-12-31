@@ -937,6 +937,7 @@ async function loadDocuments() {
 // Store current document data for view switching
 let currentModalDoc = null;
 let currentModalSummary = null;
+let currentModalTranslation = null;
 
 function viewDocument(docId) {
     // Create and show a document viewer modal
@@ -947,6 +948,7 @@ function viewDocument(docId) {
                 const doc = data.document;
                 currentModalDoc = doc;
                 currentModalSummary = null; // Reset summary
+                currentModalTranslation = null; // Reset translation
 
                 // Create modal overlay
                 let modal = document.getElementById('documentViewerModal');
@@ -963,6 +965,7 @@ function viewDocument(docId) {
                             <div class="document-modal-tabs">
                                 <button class="modal-tab active" id="tabFull" onclick="switchDocView('full')">📄 Full Format</button>
                                 <button class="modal-tab" id="tabSummary" onclick="switchDocView('summary')">📝 Summarized</button>
+                                <button class="modal-tab" id="tabTranslate" onclick="switchDocView('translate')">🇮🇳 Translate</button>
                             </div>
                             <div class="document-modal-meta" id="modalDocMeta"></div>
                             <div class="document-modal-body" id="modalDocBody"></div>
@@ -1089,6 +1092,7 @@ function viewDocument(docId) {
                 // Reset tabs
                 document.getElementById('tabFull').classList.add('active');
                 document.getElementById('tabSummary').classList.remove('active');
+                document.getElementById('tabTranslate').classList.remove('active');
 
                 // Populate modal content
                 document.getElementById('modalDocTitle').textContent = doc.title || doc.filename;
@@ -1117,14 +1121,18 @@ function viewDocument(docId) {
 function switchDocView(view) {
     const tabFull = document.getElementById('tabFull');
     const tabSummary = document.getElementById('tabSummary');
+    const tabTranslate = document.getElementById('tabTranslate');
     const body = document.getElementById('modalDocBody');
+
+    // Reset active states
+    tabFull.classList.remove('active');
+    tabSummary.classList.remove('active');
+    tabTranslate.classList.remove('active');
 
     if (view === 'full') {
         tabFull.classList.add('active');
-        tabSummary.classList.remove('active');
         body.textContent = currentModalDoc.full_text || currentModalDoc.text_preview || 'No content available';
     } else if (view === 'summary') {
-        tabFull.classList.remove('active');
         tabSummary.classList.add('active');
 
         // If summary already fetched, show it
@@ -1151,6 +1159,35 @@ function switchDocView(view) {
                 .catch(err => {
                     console.error('Summary error:', err);
                     body.innerHTML = '<p>⚠️ Failed to generate summary.</p>';
+                });
+        }
+    } else if (view === 'translate') {
+        tabTranslate.classList.add('active');
+
+        // If translation already fetched, show it
+        if (currentModalTranslation) {
+            body.innerHTML = `<div style="white-space: pre-wrap; line-height: 1.8;">${escapeHtml(currentModalTranslation)}</div>`;
+        } else {
+            // Fetch translation
+            body.innerHTML = '<div class="summary-loading">⏳ Translating to Hindi...</div>';
+
+            fetch(`${API_BASE}/translate`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text: currentModalDoc.full_text || currentModalDoc.text_preview })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success && data.translation) {
+                        currentModalTranslation = data.translation;
+                        body.innerHTML = `<div style="white-space: pre-wrap; line-height: 1.8;">${escapeHtml(data.translation)}</div>`;
+                    } else {
+                        body.innerHTML = '<p>⚠️ Could not translate document.</p>';
+                    }
+                })
+                .catch(err => {
+                    console.error('Translation error:', err);
+                    body.innerHTML = '<p>⚠️ Failed to translate document.</p>';
                 });
         }
     }
@@ -1211,6 +1248,7 @@ function closeDocumentModal() {
     if (modal) modal.style.display = 'none';
     currentModalDoc = null;
     currentModalSummary = null;
+    currentModalTranslation = null;
 }
 
 function formatFileSize(bytes) {

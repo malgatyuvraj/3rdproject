@@ -178,6 +178,13 @@
                         <polyline points="17 8 12 3 7 8" />
                         <line x1="12" y1="3" x2="12" y2="15" />
                     </svg></span> Upload</a>
+            <a href="#" class="nav-item" data-section="documents"><span class="icon"><svg viewBox="0 0 24 24">
+                        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+                        <polyline points="14 2 14 8 20 8" />
+                        <line x1="16" y1="13" x2="8" y2="13" />
+                        <line x1="16" y1="17" x2="8" y2="17" />
+                        <line x1="10" y1="9" x2="8" y2="9" />
+                    </svg></span> Documents</a>
             <a href="#" class="nav-item" data-section="search"><span class="icon"><svg viewBox="0 0 24 24">
                         <circle cx="11" cy="11" r="8" />
                         <line x1="21" y1="21" x2="16.65" y2="16.65" />
@@ -358,6 +365,22 @@
                             <p class="placeholder">Action items will be extracted automatically...</p>
                         </div>
                     </div>
+                </div>
+            </section>
+
+            <!-- Document Library Section -->
+            <section class="content-section" id="documents-section" style="display: none;">
+                <div class="section-header">
+                    <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                        <div>
+                            <h3>Document Library / दस्तावेज़ पुस्तकालय</h3>
+                            <p>Browse and manage your processed documents</p>
+                        </div>
+                        <div id="libraryCount" class="badge">0 documents</div>
+                    </div>
+                </div>
+                <div class="documents-grid" id="documentsGrid">
+                    <!-- Documents will be loaded here -->
                 </div>
             </section>
 

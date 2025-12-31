@@ -36,6 +36,7 @@ from modules.compliance import check_document_compliance
 from modules.comparator import compare_documents
 from modules.grievance import register_grievance, get_grievances, get_grievance_stats, grievance_tracker
 from modules.workflow import get_workflow_status, create_workflow, get_pending_documents, get_workflow_stats
+from modules.translation import translator
 
 # Initialize FastAPI app
 app = FastAPI(
@@ -76,6 +77,10 @@ blockchain = BlockchainVerifier()
 class SummarizeRequest(BaseModel):
     text: str
     level: str = "director"  # secretary, director, officer
+
+class TranslateRequest(BaseModel):
+    text: str
+    target_lang: str = "hindi"
 
 class SearchRequest(BaseModel):
     query: str
@@ -359,6 +364,18 @@ async def summarize_all_levels(request: SummarizeRequest):
             }
             for level, summary in results.items()
         }
+    }
+
+
+@app.post("/translate")
+async def translate_document(request: TranslateRequest):
+    """Translate document text to Hindi"""
+    translation = translator.translate_to_hindi(request.text)
+    
+    return {
+        "success": True,
+        "translation": translation,
+        "language": "hindi"
     }
 
 
