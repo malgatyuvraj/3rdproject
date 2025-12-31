@@ -39,8 +39,8 @@ SUPPORTED_LANGUAGES = {
 
 # Model settings
 EMBEDDING_MODEL = "all-MiniLM-L6-v2"
-PERPLEXITY_MODEL = "llama-3.1-sonar-large-128k-online"
-PERPLEXITY_FALLBACK_MODEL = "llama-3.1-sonar-small-128k-online"
+PERPLEXITY_MODEL = "sonar"
+PERPLEXITY_FALLBACK_MODEL = "sonar"
 
 # Summary length limits
 SUMMARY_LIMITS = {
